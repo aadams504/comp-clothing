@@ -1,20 +1,15 @@
-import { initializeApp } from 'firebase/app'
-
-import { 
-    getAuth,
-    signInWithRedirect,
-    signInWithPopup,
-    GoogleAuthProvider,
-    createUserWithEmailAndPassword
-} from 'firebase/auth'
-
-import { 
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
- } from 'firebase/firestore'
-
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  signInWithRedirect,
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 // Firebase config for clothing web app
 
@@ -27,55 +22,64 @@ const firebaseConfig = {
   appId: "1:140112381987:web:1b3a8a990c91c12cb0c996"
 };
 
-// Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
-// Google specific auth provider config
 const googleProvider = new GoogleAuthProvider();
 
 googleProvider.setCustomParameters({
-    prompt: 'select_account',
+  prompt: 'select_account',
 });
 
 export const auth = getAuth();
-export const signInWithGooglePopup = () => signInWithPopup(auth, googleProvider);
-export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googleProvider);
+export const signInWithGooglePopup = () =>
+  signInWithPopup(auth, googleProvider);
+export const signInWithGoogleRedirect = () =>
+  signInWithRedirect(auth, googleProvider);
 
-export const db = getFirestore()
+export const db = getFirestore();
 
 export const createUserDocumentFromAuth = async (
-    userAuth, 
-    additionalInformation = {}
-    ) => {
-    const userDocRef = doc(db, 'users', userAuth.uid);
+  userAuth,
+  additionalInformation = {}
+) => {
+  if (!userAuth) return;
 
-// Checks for existing user data on db and allows access to data
-    const userSnapshot = await getDoc(userDocRef);
-    console.log(userSnapshot)
-    console.log(userSnapshot.exists())
+  const userDocRef = doc(db, 'users', userAuth.uid);
 
-    if(!userSnapshot.exists())  {
-        const { displayName, email } = userAuth;
-        const createdAt = new Date();
+  const userSnapshot = await getDoc(userDocRef);
 
-        try {
-            await setDoc(userDocRef, {
-                displayName,
-                email,
-                createdAt,
-                ...additionalInformation,
-            });
-        }
-            catch (error) {
-                console.log('error creating user', error.message)
-            }
-        }
+  if (!userSnapshot.exists()) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
 
-        return userDocRef;
-}
+    try {
+      await setDoc(userDocRef, {
+        displayName,
+        email,
+        createdAt,
+        ...additionalInformation,
+      });
+    } catch (error) {
+      console.log('error creating the user', error.message);
+    }
+  }
+
+  return userDocRef;
+};
 
 export const createAuthUserWithEmailAndPassword = async (email, password) => {
-    if (!email || !password) return;
+  if (!email || !password) return;
 
-    return await createUserWithEmailAndPassword(auth, email, password)
-}
+  return await createUserWithEmailAndPassword(auth, email, password);
+};
+
+export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+  if (!email || !password) return;
+
+  return await signInWithEmailAndPassword(auth, email, password);
+};
+
+export const signOutUser = async () => await signOut(auth);
+
+export const onAuthStateChangedListener = (callback) => 
+  onAuthStateChanged(auth, callback);
