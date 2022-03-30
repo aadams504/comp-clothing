@@ -14,13 +14,13 @@ const rootElement = document.getElementById('root');
 render(
   <React.StrictMode>
     <BrowserRouter>
-      <CartProvider>
-        <UserProvider>
+      <UserProvider>
+        <CartProvider>
           <ProductsProvider>
             <App />
           </ProductsProvider>
-        </UserProvider>
-      </CartProvider>
+        </CartProvider>
+      </UserProvider>
     </BrowserRouter>
   </React.StrictMode>,
   rootElement
