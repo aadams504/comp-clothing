@@ -5,5 +5,5 @@ export const DirectoryContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  background-color: #D4E9F0;
+  background-color: #eff5f7;
 `;
